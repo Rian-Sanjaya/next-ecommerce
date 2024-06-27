@@ -2,6 +2,7 @@ import { wixClientServer } from "@/lib/wixClientServer";
 import { products } from "@wix/stores";
 import Image from "next/image"
 import Link from "next/link"
+import DOMPurify from "isomorphic-dompurify";
 
 const PRODUCT_PER_PAGE = 20
 
@@ -53,11 +54,18 @@ const ProductList = async ({
             <span className="font-semibold">{product.price?.price}</span>
           </div>
           {product.additionalInfoSections && (
-            <div className="text-sm text-gray-500">
-              {product.additionalInfoSections?.find((section: any) => section.title === "shortDesc")?.description || ""}
-            </div>
+            <div
+              className="text-sm text-gray-500"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(
+                  product.additionalInfoSections?.find((section: any) => section.title === "shortDesc")?.description || ""
+                ),
+              }}
+            ></div>
           )}
-          <button className="rounded-2xl ring-1 ring-badgeNumber text-badgeNumber w-max px-4 py-2 text-xs hover:bg-badgeNumber hover:text-white">Add to Cart</button>
+          <button className="rounded-2xl ring-1 ring-badgeNumber text-badgeNumber w-max px-4 py-2 text-xs hover:bg-badgeNumber hover:text-white">
+            Add to Cart
+          </button>
         </Link>
       ))}
       {/* <Link href="/test" className="w-full flex flex-col gap-4 sm:w-[45%] lg:w-[22%]">
