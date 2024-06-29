@@ -3,8 +3,9 @@ import { products } from "@wix/stores";
 import Image from "next/image"
 import Link from "next/link"
 import DOMPurify from "isomorphic-dompurify";
+import Pagination from "./Paginatioon";
 
-const PRODUCT_PER_PAGE = 20
+const PRODUCT_PER_PAGE = 8
 
 const ProductList = async ({ 
   categoryId, 
@@ -16,12 +17,33 @@ const ProductList = async ({
   searchParams?: any;
 }) => {
   const wixClient = await wixClientServer()
-  const res = await wixClient.products
+  const productQuery = wixClient.products
     .queryProducts()
+    .startsWith("name", searchParams?.name || "")
     .eq("collectionIds", categoryId)
+    .hasSome("productType", searchParams?.type ? [searchParams.type] : ["physical", "digital"])
+    .gt("priceData.price", searchParams?.min || 0)
+    .lt("priceData.price", searchParams?.max || 999999999999)
     .limit(limit || PRODUCT_PER_PAGE)
-    .find()
-  // console.log('res: ', res.items[0].price)
+    .skip(
+      searchParams?.page
+        ? parseInt(searchParams.page) * (limit || PRODUCT_PER_PAGE)
+        : 0
+    );
+    // .find()
+
+  if (searchParams?.sort) {
+    const [sortType, sortBy] = searchParams.sort.split(" ");
+
+    if (sortType === "asc") {
+      productQuery.ascending(sortBy);
+    }
+    if (sortType === "desc") {
+      productQuery.descending(sortBy);
+    }
+  }
+
+  const res = await productQuery.find();
 
   return (
     <div className="mt-12 flex justify-between flex-wrap gap-x-8 gap-y-16">
@@ -51,7 +73,7 @@ const ProductList = async ({
           </div>
           <div className="flex justify-between">
             <span className="font-medium">{product.name}</span>
-            <span className="font-semibold">{product.price?.price}</span>
+            <span className="font-semibold">{product.priceData?.formatted?.discountedPrice || product.priceData?.price}</span>
           </div>
           {product.additionalInfoSections && (
             <div
@@ -162,6 +184,13 @@ const ProductList = async ({
         <div className="text-sm text-gray-500">My description</div>
         <button className="rounded-2xl ring-1 ring-badgeNumber text-badgeNumber w-max px-4 py-2 text-xs hover:bg-badgeNumber hover:text-white">Add to Cart</button>
       </Link> */}
+      {searchParams?.cat || searchParams?.name ? (
+        <Pagination
+          currentPage={res.currentPage || 0}
+          hasPrev={res.hasPrev()}
+          hasNext={res.hasNext()}
+        />
+      ) : null}
     </div>
   )
 }

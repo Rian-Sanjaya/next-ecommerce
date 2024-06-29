@@ -2,24 +2,59 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
+import Cookies from "js-cookie"
 import CartModal from "./CartModal"
+import { useWixClient } from "@/hooks/useWixClient"
 
 const NavIcons = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
-  const isLogin = true
   const router = useRouter()
+  const pathName = usePathname();
+
+  const wixClient = useWixClient()
+  const isLoggedIn = wixClient.auth.loggedIn()
+
+  // TEMPORARY
+  // const isLoggedIn = true
 
   const handleProfile = () => {
-    if (!isLogin) {
+    if (!isLoggedIn) {
       router.push("/login")
-      return
+    } else {
+      setIsProfileOpen(prev => !prev)
     }
-    setIsProfileOpen(prev => !prev)
   }
+
+  // AUTH WITH WIX-MANAGED AUTH
+
+  // const wixClient = useWixClient();
+
+  // const login = async () => {
+  //   const loginRequestData = wixClient.auth.generateOAuthData(
+  //     "http://localhost:3000"
+  //   );
+
+  //   console.log(loginRequestData);
+
+  //   localStorage.setItem("oAuthRedirectData", JSON.stringify(loginRequestData));
+  //   const { authUrl } = await wixClient.auth.getAuthUrl(loginRequestData);
+  //   window.location.href = authUrl;
+  // };
+
+  const handleLogout = async () => {
+    setIsLoading(true);
+    Cookies.remove("refreshToken");
+    const { logoutUrl } = await wixClient.auth.logout(window.location.href);
+    setIsLoading(false);
+    setIsProfileOpen(false);
+    router.push(logoutUrl);
+    // router.push("/login");
+  };
 
   return (
     <div className="flex justify-items-center gap-4 xl:gap-6 relative">
@@ -28,12 +63,15 @@ const NavIcons = () => {
         alt="" height={22} 
         width={22} 
         className="cursor-pointer" 
+        // onClick={login}
         onClick={handleProfile}
       />
       {isProfileOpen && (
         <div className="absolute p-4 top-12 left-0 text-sm bg-white shadow-[0_3px_10px_rgb(0,0,0,0.2)] z-20">
           <Link href="/">Profile</Link>
-          <div className="mt-2 cursor-pointer">Logout</div>
+          <div className="mt-2 cursor-pointer" onClick={handleLogout}>
+            {isLoading ? "Logging out" : "Logout"}
+          </div>
         </div>
       )}
       <Image src="/notification.png" alt="" height={22} width={22} className="cursor-pointer" />
