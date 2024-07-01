@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import Skeleton from "@/components/Skeleton"
 
 const ListPage = async ({searchParams}: {searchParams: any}) => {
+  console.log('searchParams: ', searchParams)
   const wixClient = await wixClientServer()
   const cat = await wixClient.collections.getCollectionBySlug(searchParams.cat || 'all-products')
 
