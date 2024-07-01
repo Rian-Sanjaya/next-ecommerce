@@ -13,7 +13,7 @@ const CartModal = () => {
   const wixClient = useWixClient();
   const { cart, isLoading, counter, removeItem } = useCartStore();
   
-  // console.log('cart: ', cart)
+  console.log('cart: ', cart)
 
   const handleCheckout = async () => {
     try {
@@ -79,7 +79,7 @@ const CartModal = () => {
                             {item.quantity} x{" "}
                           </div>
                         )}
-                        ${item.price?.amount}
+                        {item.price?.formattedAmount}
                       </div>
                     </div>
                     {/* DESC */}
@@ -107,7 +107,7 @@ const CartModal = () => {
             <div className="flex items-center justify-between font-semibold">
               <span className="">Subtotal</span>
               {/* @ts-ignore */}
-              <span className="">${cart.subtotal.amount}</span>
+              <span className="">{cart.subtotal?.formattedAmount}</span>
             </div>
             <p className="text-gray-500 text-sm mt-2 mb-4">
               Shipping and taxes calculated at checkout.
