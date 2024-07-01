@@ -93,7 +93,7 @@ const CartModal = () => {
                     <span
                       className="text-blue-500"
                       style={{ cursor: isLoading ? "not-allowed" : "pointer" }}
-                      onClick={() => removeItem(wixClient, item._id!)}
+                      onClick={() => removeItem(wixClient, item._id)}
                     >
                       Remove
                     </span>
