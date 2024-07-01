@@ -93,7 +93,7 @@ const CartModal = () => {
                     <span
                       className="text-blue-500"
                       style={{ cursor: isLoading ? "not-allowed" : "pointer" }}
-                      onClick={() => removeItem(wixClient, item._id)}
+                      onClick={() => removeItem(wixClient, item._id!)}
                     >
                       Remove
                     </span>
@@ -106,6 +106,7 @@ const CartModal = () => {
           <div className="">
             <div className="flex items-center justify-between font-semibold">
               <span className="">Subtotal</span>
+              {/* @ts-ignore */}
               <span className="">${cart.subtotal.amount}</span>
             </div>
             <p className="text-gray-500 text-sm mt-2 mb-4">
