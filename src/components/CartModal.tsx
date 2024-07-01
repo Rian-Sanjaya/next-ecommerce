@@ -13,7 +13,7 @@ const CartModal = () => {
   const wixClient = useWixClient();
   const { cart, isLoading, counter, removeItem } = useCartStore();
   
-  console.log('cart: ', cart)
+  // console.log('cart: ', cart)
 
   const handleCheckout = async () => {
     try {
